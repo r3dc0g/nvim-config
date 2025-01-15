@@ -84,6 +84,9 @@ local M = {
                     end,
                 },
                 formatting = cmp_format,
+                experimental = {
+                    ghost_text = true
+                }
             })
 
             require('mason').setup({})
