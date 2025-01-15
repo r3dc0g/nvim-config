@@ -59,8 +59,25 @@ local M = {
                     vim.keymap.set('n', '<leader>vrn', function() vim.lsp.buf.rename() end, opts)
                     vim.keymap.set({ 'n', 'x' }, '<leader>vf', function() vim.lsp.buf.format({ async = true }) end, opts)
                     vim.keymap.set('n', '<leader>vd', function() vim.diagnostic.open_float() end, opts)
+
+                    local client = vim.lsp.get_client_by_id(event.data.client_id)
+                    if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+                        local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+                        vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+                            buffer = event.buf,
+                            group = highlight_augroup,
+                            callback = vim.lsp.buf.document_highlight,
+                        })
+
+                        vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+                            buffer = event.buf,
+                            group = highlight_augroup,
+                            callback = vim.lsp.buf.clear_references,
+                        })
+                    end
                 end
             })
+
 
             local cmp = require("cmp")
             local cmp_action = require('lsp-zero').cmp_action()
